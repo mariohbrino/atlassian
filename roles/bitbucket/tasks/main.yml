@@ -52,3 +52,19 @@
     name: "{{ bitbucket.db_user }}"
     role_attr_flags: NOSUPERUSER,NOCREATEDB
     state: present
+
+- name: "Remove default bitbucket service"
+  file:
+    path: /etc/init.d/bitbucket
+    state: absent
+
+- name: "Copy bitbucket service"
+  template:
+    src: files/bitbucket.service
+    dest: /lib/systemd/system
+
+- name: "Start and enable bitbucket"
+  service:
+    name: bitbucket
+    state: started
+    enabled: yes

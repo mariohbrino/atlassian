@@ -1,0 +1,13 @@
+[Unit]
+Description=Atlassian Bitbucket
+After=syslog.target network.target nginx.service
+
+[Service]
+Type=forking
+User=atlbitbucket
+PIDFILE=/var/atlassian/application-data/bitbucket/log/bitbucket.pid
+ExecStart=/opt/atlassian/bitbucket/{{ bitbucket.version }}/bin/start-bitbucket.sh
+ExecStop=/opt/atlassian/bitbucket/{{ bitbucket.version }}/bin/stop-bitbucket.sh
+
+[Install]
+WantedBy=multi-user.target
