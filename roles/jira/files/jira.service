@@ -5,9 +5,9 @@ After=syslog.target network.target nginx.service
 [Service]
 Type=forking
 User=jira
+PIDFILE=/var/atlassian/application-data/jira/log/jira.pid
 ExecStart=/opt/atlassian/jira/{{ jira.version }}/bin/start-jira.sh
 ExecStop=/opt/atlassian/jira/{{ jira.version }}/bin/stop-jira.sh
-SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
