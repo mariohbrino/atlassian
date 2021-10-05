@@ -1,0 +1,13 @@
+[Unit]
+Description=Atlassian Jira
+After=syslog.target network.target nginx.service
+
+[Service]
+Type=forking
+User=jira
+ExecStart=/opt/atlassian/jira/{{ jira.version }}/bin/start-jira.sh
+ExecStop=/opt/atlassian/jira/{{ jira.version }}/bin/stop-jira.sh
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,69 @@
+- name: "Download jira"
+  get_url:
+    url: "https://product-downloads.atlassian.com/software/jira/downloads/atlassian-jira-core-{{ jira.version }}-x64.bin"
+    dest: "/tmp/atlassian-jira-core-{{ jira.version }}-x64.bin"
+    mode: 0755
+
+- name: "Copy jira response varfile"
+  template:
+    src: files/response.varfile
+    dest: /tmp/jira-response.varfile
+
+- name: "Check jira is installed"
+  stat:
+    path: /opt/atlassian/jira
+  register: jira_installed
+
+- name: "Install jira"
+  shell: "/tmp/atlassian-jira-core-{{ jira.version }}-x64.bin -q -varfile /tmp/jira-response.varfile"
+  when: jira_installed.stat.exists == False
+
+- name: "Create {{ jira.db_user }} user"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: "{{ jira.db_user }}"
+    password: "{{ jira.db_password }}"
+
+- name: "Create the database specified in vars"
+  become: yes
+  become_user: postgres
+  postgresql_db:
+    name: "{{ jira.db_name }}"
+    owner: "{{ jira.db_user }}"
+    template: 'template0'
+    state: present
+
+- name: "Ensure user has access to the new database"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    db: "{{ jira.db_name }}"
+    name: "{{ jira.db_user }}"
+    password: "{{ jira.db_password }}"
+    priv: ALL
+    state: present
+
+- name: "Ensure user does not have unnecessary permissions"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: "{{ jira.db_user }}"
+    role_attr_flags: NOSUPERUSER,NOCREATEDB
+    state: present
+
+- name: "Remove default jira service"
+  file:
+    path: /etc/init.d/jira
+    state: absent
+
+- name: "Copy jira service"
+  template:
+    src: files/jira.service
+    dest: /lib/systemd/system
+
+- name: "Start and enable jira"
+  service:
+    name: jira
+    state: started
+    enabled: yes

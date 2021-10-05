@@ -1,0 +1,54 @@
+---
+- name: "Download bitbucket"
+  get_url:
+    url: "https://product-downloads.atlassian.com/software/stash/downloads/atlassian-bitbucket-{{ bitbucket.version }}-x64.bin"
+    dest: "/tmp/atlassian-bitbucket-{{ bitbucket.version }}-x64.bin.bin"
+    mode: 0755
+
+- name: "Copy bitbucket response varfile"
+  template:
+    src: files/response.varfile
+    dest: /tmp/bitbucket-response.varfile
+
+- name: "Check bitbucket is installed"
+  stat:
+    path: /opt/atlassian/bitbucket
+  register: bitbucket_installed
+
+- name: "Install bitbucket"
+  shell: "/tmp/atlassian-bitbucket-{{ bitbucket.version }}-x64.bin.bin -q -varfile /tmp/bitbucket-response.varfile"
+  when: bitbucket_installed.stat.exists == False
+
+- name: "Create {{ bitbucket.db_user }} user"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: "{{ bitbucket.db_user }}"
+    password: "{{ bitbucket.db_password }}"
+
+- name: "Create the database specified in vars"
+  become: yes
+  become_user: postgres
+  postgresql_db:
+    name: "{{ bitbucket.db_name }}"
+    owner: "{{ bitbucket.db_user }}"
+    template: 'template0'
+    state: present
+
+- name: "Ensure user has access to the new database"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    db: "{{ bitbucket.db_name }}"
+    name: "{{ bitbucket.db_user }}"
+    password: "{{ bitbucket.db_password }}"
+    priv: ALL
+    state: present
+
+- name: "Ensure user does not have unnecessary permissions"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: "{{ bitbucket.db_user }}"
+    role_attr_flags: NOSUPERUSER,NOCREATEDB
+    state: present

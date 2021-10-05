@@ -1,0 +1,9 @@
+---
+- name: "Install common dependencies"
+  apt:
+    pkg:
+      - git
+      - python3-psycopg2
+      - openjdk-11-jdk-headless
+    state: present
+    force: yes

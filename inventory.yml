@@ -1,0 +1,24 @@
+all:
+  hosts:
+    bitbucket:
+      ansible_host: <hostname>
+    jira:
+      ansible_host: <hostname>
+  vars:
+    username: <username>
+    ansible_user: "{{ username }}"
+    ansible_become: yes
+    ansible_become_method: sudo
+    ansible_connection: ssh
+    ansible_ssh_pipelining: true
+    ansible_python_interpreter: /usr/bin/python3
+    bitbucket:
+      version: 7.16.1
+      db_user: bitbucket
+      db_name: bitbucket
+      db_password: bitbucket
+    jira:
+      version: 8.19.1
+      db_user: jira
+      db_name: jira
+      db_password: jira

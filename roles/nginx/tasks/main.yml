@@ -1,0 +1,16 @@
+---
+- name: "Install nginx server"
+  package:
+    name: nginx
+    state: present
+
+- name: "Remove default nginx config"
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: "Start and enable nginx"
+  service:
+    name: nginx
+    state: started
+    enabled: yes
