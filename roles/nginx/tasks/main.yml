@@ -9,8 +9,8 @@
     path: /etc/nginx/sites-enabled/default
     state: absent
 
-- name: "Start and enable nginx"
+- name: "Restart and enable nginx"
   service:
     name: nginx
-    state: started
+    state: restarted
     enabled: yes
