@@ -25,6 +25,7 @@
   postgresql_user:
     name: "{{ bitbucket.db_user }}"
     password: "{{ bitbucket.db_password }}"
+  no_log: true
 
 - name: "Create the database specified in vars"
   become: yes
@@ -44,6 +45,7 @@
     password: "{{ bitbucket.db_password }}"
     priv: ALL
     state: present
+  no_log: true
 
 - name: "Ensure user does not have unnecessary permissions"
   become: yes
@@ -52,6 +54,7 @@
     name: "{{ bitbucket.db_user }}"
     role_attr_flags: NOSUPERUSER,NOCREATEDB
     state: present
+  no_log: true
 
 - name: "Remove default bitbucket service"
   file:
